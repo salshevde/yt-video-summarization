@@ -55,35 +55,35 @@ function App() {
     const sendToN8n = async (url: string) => {
       try {
         const response = await fetch(import.meta.env.VITE_N8N_WEBHOOK_URL, {
-          method: 'POST',
+          method: 'POST', // Use POST because you are sending data in the body
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', // Content type for sending JSON
           },
-          body: JSON.stringify({ youtubeUrl: url }),
+          body: JSON.stringify({ youtubeUrl: url }), // Send the URL as part of the request body
         });
-
+    
+        console.log(response)
         if (response.ok) {
           const responseData = await response.json();
-          toast.success('YouTube URL sent to n8n');
-          return responseData;
+          toast.success('Video summary received');
+          return responseData; // Return the summary from n8n
         } else {
-          toast.error('Failed to send YouTube URL');
+          toast.error('Failed to send YouTube URL to n8n');
         }
       } catch (error) {
+        console.error('Error during request:', error);
         toast.error('Error sending YouTube URL');
       }
     };
 
-
     try {
-      setStatus('Extracting transcript...');
+      setStatus('Generating summary...');
       // error
       const n8data = await sendToN8n(url);
-
+      
       const transcript = n8data.transcription;
 
       setTranscript(transcript);
-      setStatus('Generating summary...');
 
       const video_details = {
         video_title: n8data.title,
