@@ -18,8 +18,8 @@ import { nhost } from './lib/nhost';
 
 function App() {
   const nhostClient = useNhostClient();
-  const [session, setSession] = useState<NhostSession|null>(null)
-  
+  const [session, setSession] = useState<NhostSession | null>(null)
+
   const [isDark, setIsDark] = useState(true);
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,11 +34,11 @@ function App() {
 
   useEffect(() => {
 
-      setUser(nhost.auth.getUser());
-      setSession(nhost.auth.getSession())
-      nhost.auth.onAuthStateChanged((_, session) => {
-        setSession(session)
-      })
+    setUser(nhost.auth.getUser());
+    setSession(nhost.auth.getSession())
+    nhost.auth.onAuthStateChanged((_, session) => {
+      setSession(session)
+    })
   }, [nhost.auth.getUser()]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,70 +50,89 @@ function App() {
 
     setIsLoading(true);
     setStatus('Fetching video information...');
-    
+
     // Function to send the YouTube URL to n8n
     const sendToN8n = async (url: string) => {
       try {
-      const response = await fetch(import.meta.env.VITE_N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ youtubeUrl: url }),
-      });
+        const response = await fetch(import.meta.env.VITE_N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ youtubeUrl: url }),
+        });
 
-      if (response.ok) {
-        toast.success('YouTube URL sent to n8n');
-      } else {
-        toast.error('Failed to send YouTube URL');
+        if (response.ok) {
+          const responseData = await response.json();
+          toast.success('YouTube URL sent to n8n');
+          return responseData;
+        } else {
+          toast.error('Failed to send YouTube URL');
+        }
+      } catch (error) {
+        toast.error('Error sending YouTube URL');
       }
-    } catch (error) {
-      toast.error('Error sending YouTube URL');
-    }
-  };
+    };
 
-  sendToN8n(url)
-    
+
     try {
-      // Simulate API calls with delays
-      await new Promise(resolve => setTimeout(resolve, 1000));
       setStatus('Extracting transcript...');
-      
-      // Mock transcript data
-      const mockTranscript = `In this video, we'll explore the fundamentals of React development.
-First, we'll cover components and props.
-Then, we'll dive into state management and hooks.
-Finally, we'll look at best practices for production applications.`;
-      setTranscript(mockTranscript);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setStatus('Generating summary...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // error
+      const n8data = await sendToN8n(url);
 
-      // Mock summary data
-      const mockSummary = {
-        video_title: 'How to Build a React App',
-        thumbnail_url: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800',
-        summary: 'This comprehensive tutorial covers React fundamentals, hooks, and best practices for building production-ready applications. The video explains component architecture, state management patterns, and advanced optimization techniques.',
-        keywords: ['React', 'JavaScript', 'Web Development', 'Frontend', 'Hooks'],
-        category: 'Technology',
-        language,
-        length_preference: lengthPreference,
-        sentiment: analyzeSentiment(mockTranscript),
+      const transcript = n8data.transcription;
+
+      setTranscript(transcript);
+      setStatus('Generating summary...');
+
+      const video_details = {
+        video_title: n8data.title,
+        thumbnail_url: n8data.thumbnails.default.url,
+        summary: n8data.summary,
+        keywords: n8data.keywords,
+        category: n8data.categoryId,
+        language: n8data.defaultLanguage,
+        sentiment: n8data.sentiment,
       };
 
-      setSummary(mockSummary);
-      
-      // Save to nhost
-      const { error } = await nhost.from('summaries').insert([{
-        user_id: user.id,
-        video_url: url,
-        ...mockSummary,
-      }]);
+      setSummary(video_details.summary);
 
-      if (error) throw error;
-    } catch (error: any) {
-      console.error('Error:', error.message);
+      // Save to nhost IF NEW FIXME
+      // GraphQL Mutation
+      const createSummaryMutation = `
+      mutation SaveSummary($video_title: String!, $thumbnail_url: String!, $summary: String!, $keywords: [String!], $category: String, $language: String, $sentiment: String) {
+        insert_summary_one(object: {
+          video_title: $video_title,
+          thumbnail_url: $thumbnail_url,
+          summary: $summary,
+          keywords: $keywords,
+          category: $category,
+          language: $language,
+          sentiment: $sentiment
+        }) {
+          id
+          video_title
+          summary
+        }
+      }
+      `;
+      const { data: summaryData, error } = await nhostClient.graphql.request(createSummaryMutation, {
+        video_title: video_details.video_title,
+        thumbnail_url: video_details.thumbnail_url,
+        summary: video_details.summary,
+        keywords: video_details.keywords,
+        category: video_details.category,
+        language: video_details.language,
+        sentiment: video_details.sentiment,
+      });
+  
+      if (error) {
+        console.error("Error saving summary:", error);
+      } else {
+        console.log("Summary saved successfully:", summaryData);
+      }
+    } catch (error) {
+      console.error("Error during handleSubmit:", error);
     } finally {
       setIsLoading(false);
       setStatus('');
@@ -121,20 +140,32 @@ Finally, we'll look at best practices for production applications.`;
   };
 
   const handleRating = async (value: number) => {
-    setRating(value);
+    setRating(value); // Update local state for immediate feedback.
+
     if (summary) {
       try {
-        const { error } = await nhost
-          .from('summaries')
-          .update({ rating: value })
-          .match({ video_url: url });
-        
+        const { error } = await nhost.graphql.request(
+          `
+        mutation UpdateRating($video_url: String!, $rating: Int!) {
+          update_summaries(where: { video_url: { _eq: $video_url } }, _set: { rating: $rating }) {
+            affected_rows
+          }
+        }
+        `,
+          {
+            video_url: url, // URL to match the correct summary entry.
+            rating: value,  // Rating to update in the database.
+          }
+        );
+
         if (error) throw error;
-      } catch (error: any) {
-        console.error('Error saving rating:', error.message);
+        console.log("Rating updated successfully.");
+      } catch (err: any) {
+        console.error("Error saving rating:", err.message);
       }
     }
   };
+
 
 
   return (
@@ -172,11 +203,10 @@ Finally, we'll look at best practices for production applications.`;
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             placeholder="Paste YouTube URL here..."
-                            className={`w-full p-4 pr-12 rounded-xl border text-lg transition-colors ${
-                              isDark 
-                                ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' 
+                            className={`w-full p-4 pr-12 rounded-xl border text-lg transition-colors ${isDark
+                                ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400'
                                 : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-500'
-                            }`}
+                              }`}
                           />
                           <YoutubeIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-red-600" />
                         </div>
@@ -189,11 +219,10 @@ Finally, we'll look at best practices for production applications.`;
                             <select
                               value={lengthPreference}
                               onChange={(e) => setLengthPreference(e.target.value as any)}
-                              className={`w-full p-3 rounded-lg border ${
-                                isDark
+                              className={`w-full p-3 rounded-lg border ${isDark
                                   ? 'bg-gray-700/50 border-gray-600 text-white'
                                   : 'bg-white border-gray-200 text-gray-900'
-                              }`}
+                                }`}
                             >
                               <option value="short">Short</option>
                               <option value="medium">Medium</option>
@@ -208,11 +237,10 @@ Finally, we'll look at best practices for production applications.`;
                             <select
                               value={language}
                               onChange={(e) => setLanguage(e.target.value)}
-                              className={`w-full p-3 rounded-lg border ${
-                                isDark
+                              className={`w-full p-3 rounded-lg border ${isDark
                                   ? 'bg-gray-700/50 border-gray-600 text-white'
                                   : 'bg-white border-gray-200 text-gray-900'
-                              }`}
+                                }`}
                             >
                               <option value="en">English</option>
                               <option value="es">Spanish</option>
@@ -225,11 +253,10 @@ Finally, we'll look at best practices for production applications.`;
                         <button
                           type="submit"
                           disabled={isLoading}
-                          className={`w-full p-4 rounded-xl font-medium text-lg flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] ${
-                            isDark
+                          className={`w-full p-4 rounded-xl font-medium text-lg flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] ${isDark
                               ? 'bg-red-600 hover:bg-red-700 text-white'
                               : 'bg-red-600 hover:bg-red-700 text-white'
-                          }`}
+                            }`}
                         >
                           {isLoading ? (
                             <>
@@ -295,16 +322,15 @@ Finally, we'll look at best practices for production applications.`;
                           <div className="flex gap-4">
                             <button
                               onClick={() => downloadPDF(summary)}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                                isDark
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${isDark
                                   ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
                                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                              }`}
+                                }`}
                             >
                               <Download className="w-4 h-4" />
                               Download PDF
                             </button>
-                            
+
                             <SocialShare summary={summary} isDark={isDark} />
                           </div>
 
@@ -316,13 +342,12 @@ Finally, we'll look at best practices for production applications.`;
                               <button
                                 key={value}
                                 onClick={() => handleRating(value)}
-                                className={`p-1 ${
-                                  value <= (rating || 0)
+                                className={`p-1 ${value <= (rating || 0)
                                     ? 'text-yellow-400'
                                     : isDark
-                                    ? 'text-gray-600'
-                                    : 'text-gray-400'
-                                }`}
+                                      ? 'text-gray-600'
+                                      : 'text-gray-400'
+                                  }`}
                               >
                                 <Star className={`w-5 h-5 ${value <= (rating || 0) ? 'fill-current' : ''}`} />
                               </button>
