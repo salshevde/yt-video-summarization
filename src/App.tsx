@@ -62,9 +62,9 @@ function App() {
           body: JSON.stringify({ youtubeUrl: url }), // Send the URL as part of the request body
         });
     
-        console.log(response)
         if (response.ok) {
           const responseData = await response.json();
+          console.log(responseData)
           toast.success('Video summary received');
           return responseData; // Return the summary from n8n
         } else {
@@ -79,8 +79,9 @@ function App() {
     try {
       setStatus('Generating summary...');
       // error
+      console.log('urel',url)
       const n8data = await sendToN8n(url);
-      
+      console.log(n8data)
       const transcript = n8data.transcription;
 
       setTranscript(transcript);
