@@ -41,6 +41,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
         if (error) throw error;
         toast.success('Account created! Please check your email.');
       }
+      console.log('ere')
       onClose();
     } catch (error: any) {
       toast.error(error.message);

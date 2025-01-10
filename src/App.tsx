@@ -66,8 +66,16 @@ function App() {
     
         if (response.ok) {
           const responseData = await response.json();
-          console.log(responseData)
-          toast.success('Video summary received');
+          console.log(responseData[0].summary)
+          if(responseData && responseData[0] && responseData[0].summary){
+            console.log("video received")
+          toast.success('Video summary received');}
+          else{
+            console.log("nto ")
+
+            toast.error(responseData)
+            return null;
+          }
           return responseData; // Return the summary from n8n
         } else {
           toast.error('Failed to send YouTube URL to n8n');
@@ -81,93 +89,100 @@ function App() {
     try {
       setStatus('Generating summary...');
       // error
-      // const n8data_ = await sendToBackend(url);
-      const n8data ={
-        "summary": "This episode of This Guy's Toast, hosted by Disguised Toast, featured three contestants: Sonic, QuarterJade, and returning champion Scarra. The questions covered a variety of categories, including web history, gaming, esports, pets, and physical challenges. After two rounds of questions, Sean (Sonic) emerged victorious with 11,000 points, while QuarterJade and Scarra trailed behind with 4,600 and 700 points, respectively. ",
-        "title": "I exposed my friends and CHAOS ensued in my Gameshow...",
-        "description": "Join us in the second episode of This Guy's Toast! a totally original gameshow with very unique prompts and topics that will make contestants compete with all their might for the win. Answers also include physical movements! will they be exposed for a lack of athletic ability?\n\nSupport DSG on Patreon ► https://patreon.com/Disguised\nJoin the DSG Discord ► https://discord.gg/Disguised\n\nWatch me Live on Twitch! ► https://twitch.tv/disguisedtoast\nFollow on Instagram! ► http://instagram.com/DisguisedToast\nFollow on Twitter! ► http://twitter.com/DisguisedToast\nLike on Facebook! ► http://facebook.com/DisguisedToast\n\nOutro Track ► \"French Toast\" by Drew.0 (https://youtube.com/c/drew0), co-written and produced by Steven Tran (https://instagram.com/snk_tran )\n\ntrivia by: otriggad & 4our\nedited by: https://twitter.com/_4our_\n\n#DisguisedToast #OfflineTV #DSG",
-        "id": "2kWMkqthfYs",
-        "youtubeUrl": "https://www.youtube.com/watch?v=2kWMkqthfYs",
-        "thumbnails": {
-            "default": {
-                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/default.jpg",
-                "width": 120,
-                "height": 90
-            },
-            "medium": {
-                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/mqdefault.jpg",
-                "width": 320,
-                "height": 180
-            },
-            "high": {
-                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/hqdefault.jpg",
-                "width": 480,
-                "height": 360
-            },
-            "standard": {
-                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/sddefault.jpg",
-                "width": 640,
-                "height": 480
-            },
-            "maxres": {
-                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/maxresdefault.jpg",
-                "width": 1280,
-                "height": 720
-            }
-        },
-        "tags": [
-            "among us",
-            "among us impostor",
-            "among us imposter",
-            "among us gameplay",
-            "disguised toast",
-            "disguised toast among us",
-            "among us funny",
-            "among us big brain",
-            "among us big brain plays",
-            "among us funny moments",
-            "offlinetv",
-            "offlinetv and friends",
-            "among us impostor tips",
-            "among us gameplay funny moments",
-            "Toast Twitch",
-            "Disguised Toast Twitch",
-            "this guys toast",
-            "toast gameshow",
-            "ludwig gameshow",
-            "toast jeopardy",
-            "ludwig jeopardy"
-        ],
-        "categoryId": "20",
-        "defaultLanguage": "en",
-        "statistics": {
-            "viewCount": "1253525",
-            "likeCount": "46680",
-            "favoriteCount": "0",
-            "commentCount": "943"
-        },
-        "player": {
-            "embedHtml": "<iframe width=\"480\" height=\"270\" src=\"//www.youtube.com/embed/2kWMkqthfYs\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>"
-        },
-        "availableLangs": [
-            "en"
-        ],
-        "transcription": "transcription",
-        "keywords": [
-            "Disguised Toast",
-            "This Guy's Toast",
-            "Sonic",
-            "QuarterJade",
-            "Scarra",
-            "web history",
-            "gaming",
-            "esports",
-            "pets",
-            "physical challenges"
-        ],
-        "sentiment": "positive"
+      const n8data_ = await sendToBackend(url);
+      
+    //   const n8data ={
+    //     "summary": "This episode of This Guy's Toast, hosted by Disguised Toast, featured three contestants: Sonic, QuarterJade, and returning champion Scarra. The questions covered a variety of categories, including web history, gaming, esports, pets, and physical challenges. After two rounds of questions, Sean (Sonic) emerged victorious with 11,000 points, while QuarterJade and Scarra trailed behind with 4,600 and 700 points, respectively. ",
+    //     "title": "I exposed my friends and CHAOS ensued in my Gameshow...",
+    //     "description": "Join us in the second episode of This Guy's Toast! a totally original gameshow with very unique prompts and topics that will make contestants compete with all their might for the win. Answers also include physical movements! will they be exposed for a lack of athletic ability?\n\nSupport DSG on Patreon ► https://patreon.com/Disguised\nJoin the DSG Discord ► https://discord.gg/Disguised\n\nWatch me Live on Twitch! ► https://twitch.tv/disguisedtoast\nFollow on Instagram! ► http://instagram.com/DisguisedToast\nFollow on Twitter! ► http://twitter.com/DisguisedToast\nLike on Facebook! ► http://facebook.com/DisguisedToast\n\nOutro Track ► \"French Toast\" by Drew.0 (https://youtube.com/c/drew0), co-written and produced by Steven Tran (https://instagram.com/snk_tran )\n\ntrivia by: otriggad & 4our\nedited by: https://twitter.com/_4our_\n\n#DisguisedToast #OfflineTV #DSG",
+    //     "id": "2kWMkqthfYs",
+    //     "youtubeUrl": "https://www.youtube.com/watch?v=2kWMkqthfYs",
+    //     "thumbnails": {
+    //         "default": {
+    //             "url": "https://i.ytimg.com/vi/2kWMkqthfYs/default.jpg",
+    //             "width": 120,
+    //             "height": 90
+    //         },
+    //         "medium": {
+    //             "url": "https://i.ytimg.com/vi/2kWMkqthfYs/mqdefault.jpg",
+    //             "width": 320,
+    //             "height": 180
+    //         },
+    //         "high": {
+    //             "url": "https://i.ytimg.com/vi/2kWMkqthfYs/hqdefault.jpg",
+    //             "width": 480,
+    //             "height": 360
+    //         },
+    //         "standard": {
+    //             "url": "https://i.ytimg.com/vi/2kWMkqthfYs/sddefault.jpg",
+    //             "width": 640,
+    //             "height": 480
+    //         },
+    //         "maxres": {
+    //             "url": "https://i.ytimg.com/vi/2kWMkqthfYs/maxresdefault.jpg",
+    //             "width": 1280,
+    //             "height": 720
+    //         }
+    //     },
+    //     "tags": [
+    //         "among us",
+    //         "among us impostor",
+    //         "among us imposter",
+    //         "among us gameplay",
+    //         "disguised toast",
+    //         "disguised toast among us",
+    //         "among us funny",
+    //         "among us big brain",
+    //         "among us big brain plays",
+    //         "among us funny moments",
+    //         "offlinetv",
+    //         "offlinetv and friends",
+    //         "among us impostor tips",
+    //         "among us gameplay funny moments",
+    //         "Toast Twitch",
+    //         "Disguised Toast Twitch",
+    //         "this guys toast",
+    //         "toast gameshow",
+    //         "ludwig gameshow",
+    //         "toast jeopardy",
+    //         "ludwig jeopardy"
+    //     ],
+    //     "categoryId": "20",
+    //     "defaultLanguage": "en",
+    //     "statistics": {
+    //         "viewCount": "1253525",
+    //         "likeCount": "46680",
+    //         "favoriteCount": "0",
+    //         "commentCount": "943"
+    //     },
+    //     "player": {
+    //         "embedHtml": "<iframe width=\"480\" height=\"270\" src=\"//www.youtube.com/embed/2kWMkqthfYs\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>"
+    //     },
+    //     "availableLangs": [
+    //         "en"
+    //     ],
+    //     "transcription": "transcription",
+    //     "keywords": [
+    //         "Disguised Toast",
+    //         "This Guy's Toast",
+    //         "Sonic",
+    //         "QuarterJade",
+    //         "Scarra",
+    //         "web history",
+    //         "gaming",
+    //         "esports",
+    //         "pets",
+    //         "physical challenges"
+    //     ],
+    //     "sentiment": "positive"
+    // }
+    if (!n8data_){
+
+      throw new Error('No response received');
     }
-      // const n8data = n8data_[0]
+      const n8data = n8data_[0]
+
+
       const transcript = n8data.transcription;
 
       setTranscript(transcript);
@@ -256,8 +271,10 @@ function App() {
 
         if (error) throw error;
         console.log("Rating updated successfully.");
+        toast.success("Rating updated")
       } catch (err: any) {
         console.error("Error saving rating:", err.message);
+        toast.error("Rating not saved")
       }
     }
   };
@@ -339,9 +356,11 @@ function App() {
                                 }`}
                             >
                               <option value="en">English</option>
-                              <option value="es">Spanish</option>
                               <option value="fr">French</option>
-                              <option value="de">German</option>
+                              <option value="hi">Hindi</option>
+                              <option value="ru">Russian</option>
+                              <option value="de">Chinese</option>
+                              <option value="zh-CN">German</option>
                             </select>
                           </div>
                         </div>
@@ -388,7 +407,7 @@ function App() {
                               {summary.video_title}
                             </h3>
                             <div className="flex gap-2 flex-wrap">
-                              <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm">
+                              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
                                 {summary.category}
                               </span>
                               <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
