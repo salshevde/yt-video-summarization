@@ -19,9 +19,15 @@ export function History() {
       const query = `
         query GetSummaries {
           summaries(order_by: {created_at: desc}) {
-            id
+            summary_id
             video_title
             video_url
+            keywords
+            thumbnail_url
+            category
+            language
+            length_preference
+            sentiment
             created_at
             rating
           }
@@ -71,7 +77,11 @@ export function History() {
           {filteredSummaries.map((summary) => (
             <li key={summary.id} className="p-4 rounded-lg shadow-lg bg-white border border-gray-200">
               <div className="flex justify-between items-start">
-                <div>
+                <div>                          <img
+                            src={summary.thumbnail_url}
+                            alt={summary.video_title}
+                            className="w-48 h-28 object-cover rounded-lg"
+                          />
                   <h2 className="text-lg font-bold">{summary.video_title}</h2>
                   <p className="text-sm text-gray-500">{format(new Date(summary.created_at), 'PPP')}</p>
                   <p className="text-sm text-blue-600 truncate">{summary.video_url}</p>

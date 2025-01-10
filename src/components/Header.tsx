@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Youtube } from 'lucide-react'; // Updated to use a different Youtube icon from lucide-react
-import { Sun, Moon, History, LogOut } from 'lucide-react';
+import { Home, Sun, Moon, History, LogOut } from 'lucide-react';
 import { nhost } from '../lib/nhost'; // Import nhost client
 import toast from 'react-hot-toast';
 
@@ -36,11 +36,26 @@ export function Header({ isDark, setIsDark, user, onAuthClick }: HeaderProps) {
       </Link>
 
       <div className="flex items-center gap-4">
-        {user && (
+        {user && location.pathname === '/history' &&(
+          <Link
+            to="/"
+            className={`p-3 rounded-full transition-all duration-300 ${
+              location.pathname === '/history'
+                ? 'bg-red-600 text-white'
+                : isDark
+                ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                : 'bg-white hover:bg-gray-100 text-gray-600 shadow-lg'
+            }`}
+          >
+            <Home className="w-5 h-5" />
+          </Link>
+        )}
+        
+                {user && location.pathname === '/' &&(
           <Link
             to="/history"
             className={`p-3 rounded-full transition-all duration-300 ${
-              location.pathname === '/history'
+              location.pathname === '/'
                 ? 'bg-red-600 text-white'
                 : isDark
                 ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
@@ -50,7 +65,6 @@ export function Header({ isDark, setIsDark, user, onAuthClick }: HeaderProps) {
             <History className="w-5 h-5" />
           </Link>
         )}
-        
         <button
           onClick={() => setIsDark(!isDark)}
           className={`p-3 rounded-full transition-all duration-300 ${

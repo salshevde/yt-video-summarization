@@ -30,6 +30,8 @@ function App() {
   const [lengthPreference, setLengthPreference] = useState<'short' | 'medium' | 'detailed'>('medium');
   const [language, setLanguage] = useState('en');
   const [status, setStatus] = useState('');
+  
+  const [summaryId , setSummaryId] = useState(null)
   const [rating, setRating] = useState<number | null>(null);
 
   useEffect(() => {
@@ -52,9 +54,9 @@ function App() {
     setStatus('Fetching video information...');
 
     // Function to send the YouTube URL to n8n
-    const sendToN8n = async (url: string) => {
+    const sendToBackend = async (url: string) => {
       try {
-        const response = await fetch(import.meta.env.VITE_N8N_WEBHOOK_URL, {
+        const response = await fetch(import.meta.env.VITE_PROXY_URL, {
           method: 'POST', // Use POST because you are sending data in the body
           headers: {
             'Content-Type': 'application/json', // Content type for sending JSON
@@ -79,9 +81,93 @@ function App() {
     try {
       setStatus('Generating summary...');
       // error
-      console.log('urel',url)
-      const n8data = await sendToN8n(url);
-      console.log(n8data)
+      // const n8data_ = await sendToBackend(url);
+      const n8data ={
+        "summary": "This episode of This Guy's Toast, hosted by Disguised Toast, featured three contestants: Sonic, QuarterJade, and returning champion Scarra. The questions covered a variety of categories, including web history, gaming, esports, pets, and physical challenges. After two rounds of questions, Sean (Sonic) emerged victorious with 11,000 points, while QuarterJade and Scarra trailed behind with 4,600 and 700 points, respectively. ",
+        "title": "I exposed my friends and CHAOS ensued in my Gameshow...",
+        "description": "Join us in the second episode of This Guy's Toast! a totally original gameshow with very unique prompts and topics that will make contestants compete with all their might for the win. Answers also include physical movements! will they be exposed for a lack of athletic ability?\n\nSupport DSG on Patreon ► https://patreon.com/Disguised\nJoin the DSG Discord ► https://discord.gg/Disguised\n\nWatch me Live on Twitch! ► https://twitch.tv/disguisedtoast\nFollow on Instagram! ► http://instagram.com/DisguisedToast\nFollow on Twitter! ► http://twitter.com/DisguisedToast\nLike on Facebook! ► http://facebook.com/DisguisedToast\n\nOutro Track ► \"French Toast\" by Drew.0 (https://youtube.com/c/drew0), co-written and produced by Steven Tran (https://instagram.com/snk_tran )\n\ntrivia by: otriggad & 4our\nedited by: https://twitter.com/_4our_\n\n#DisguisedToast #OfflineTV #DSG",
+        "id": "2kWMkqthfYs",
+        "youtubeUrl": "https://www.youtube.com/watch?v=2kWMkqthfYs",
+        "thumbnails": {
+            "default": {
+                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/default.jpg",
+                "width": 120,
+                "height": 90
+            },
+            "medium": {
+                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/mqdefault.jpg",
+                "width": 320,
+                "height": 180
+            },
+            "high": {
+                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/hqdefault.jpg",
+                "width": 480,
+                "height": 360
+            },
+            "standard": {
+                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/sddefault.jpg",
+                "width": 640,
+                "height": 480
+            },
+            "maxres": {
+                "url": "https://i.ytimg.com/vi/2kWMkqthfYs/maxresdefault.jpg",
+                "width": 1280,
+                "height": 720
+            }
+        },
+        "tags": [
+            "among us",
+            "among us impostor",
+            "among us imposter",
+            "among us gameplay",
+            "disguised toast",
+            "disguised toast among us",
+            "among us funny",
+            "among us big brain",
+            "among us big brain plays",
+            "among us funny moments",
+            "offlinetv",
+            "offlinetv and friends",
+            "among us impostor tips",
+            "among us gameplay funny moments",
+            "Toast Twitch",
+            "Disguised Toast Twitch",
+            "this guys toast",
+            "toast gameshow",
+            "ludwig gameshow",
+            "toast jeopardy",
+            "ludwig jeopardy"
+        ],
+        "categoryId": "20",
+        "defaultLanguage": "en",
+        "statistics": {
+            "viewCount": "1253525",
+            "likeCount": "46680",
+            "favoriteCount": "0",
+            "commentCount": "943"
+        },
+        "player": {
+            "embedHtml": "<iframe width=\"480\" height=\"270\" src=\"//www.youtube.com/embed/2kWMkqthfYs\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\" referrerpolicy=\"strict-origin-when-cross-origin\" allowfullscreen></iframe>"
+        },
+        "availableLangs": [
+            "en"
+        ],
+        "transcription": "transcription",
+        "keywords": [
+            "Disguised Toast",
+            "This Guy's Toast",
+            "Sonic",
+            "QuarterJade",
+            "Scarra",
+            "web history",
+            "gaming",
+            "esports",
+            "pets",
+            "physical challenges"
+        ],
+        "sentiment": "positive"
+    }
+      // const n8data = n8data_[0]
       const transcript = n8data.transcription;
 
       setTranscript(transcript);
@@ -95,29 +181,33 @@ function App() {
         language: n8data.defaultLanguage,
         sentiment: n8data.sentiment,
       };
-
-      setSummary(video_details.summary);
+      setSummary(video_details);
 
       // Save to nhost IF NEW FIXME
       // GraphQL Mutation
+      const user_id = user.id;
       const createSummaryMutation = `
-      mutation SaveSummary($video_title: String!, $thumbnail_url: String!, $summary: String!, $keywords: [String!], $category: String, $language: String, $sentiment: String) {
-        insert_summary_one(object: {
+      mutation SaveSummary($video_title: String!,$video_url: String!, $thumbnail_url: String!, $summary: String!, $keywords: [String!], $category: String, $language: String, $sentiment: String, $user_id: uuid!, $lengthPreference: String!) {
+        insert_summaries_one(object: {
+          user_id: $user_id,
+          video_url: $video_url,
+
           video_title: $video_title,
           thumbnail_url: $thumbnail_url,
           summary: $summary,
           keywords: $keywords,
           category: $category,
           language: $language,
-          sentiment: $sentiment
+          sentiment: $sentiment,
+          length_preference: $lengthPreference
         }) {
-          id
-          video_title
-          summary
+          summary_id
         }
       }
       `;
+      console.log(lengthPreference,length)
       const { data: summaryData, error } = await nhostClient.graphql.request(createSummaryMutation, {
+        video_url:url,
         video_title: video_details.video_title,
         thumbnail_url: video_details.thumbnail_url,
         summary: video_details.summary,
@@ -125,8 +215,11 @@ function App() {
         category: video_details.category,
         language: video_details.language,
         sentiment: video_details.sentiment,
+        user_id: user_id,
+        lengthPreference: lengthPreference
       });
-  
+
+      setSummaryId(summaryData.insert_summaries_one.summary_id);
       if (error) {
         console.error("Error saving summary:", error);
       } else {
@@ -145,16 +238,18 @@ function App() {
 
     if (summary) {
       try {
+        console.log(summaryId)
         const { error } = await nhost.graphql.request(
           `
-        mutation UpdateRating($video_url: String!, $rating: Int!) {
-          update_summaries(where: { video_url: { _eq: $video_url } }, _set: { rating: $rating }) {
+        mutation UpdateRating($summary_id: uuid!, $rating: Int!) {
+          update_summaries(where: { summary_id: { _eq: $summary_id } }, _set: { rating: $rating }) {
             affected_rows
           }
         }
         `,
           {
-            video_url: url, // URL to match the correct summary entry.
+            
+            summary_id: summaryId, 
             rating: value,  // Rating to update in the database.
           }
         );
