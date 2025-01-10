@@ -377,7 +377,7 @@ function App() {
                           </div>
                         </div>
 
-                        <div className={`mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <div className={`prose space-y-4 mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                         <div dangerouslySetInnerHTML={{ __html: summary.summary}} />
                         </div>
 
