@@ -459,9 +459,9 @@ function App() {
                           </div>
                         </div>
 
-                        <p className={`mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <div className={`mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                         <div dangerouslySetInnerHTML={{ __html: summary.summary}} />
-                        </p>
+                        </div>
 
                         <div className="flex gap-2 mb-6 flex-wrap">
                           {summary.keywords.map((keyword: string, index: number) => (
