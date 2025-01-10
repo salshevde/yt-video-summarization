@@ -20,6 +20,7 @@ export function History() {
         query GetSummaries {
           summaries(order_by: {created_at: desc}) {
             summary_id
+            summary
             video_title
             video_url
             keywords
