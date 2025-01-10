@@ -12,17 +12,23 @@ export const downloadPDF = (summary: any) => {
   doc.text(`Category: ${summary.category}`, 20, 35);
   doc.text(`Language: ${summary.language}`, 20, 45);
   
+  // Add the thumbnail image (if exists)
+  if (summary.thumbnail_url) {
+    doc.addImage(summary.thumbnail_url, 'JPEG', 20, 50, 50, 50);  // Adjust size and position
+  }
+  
   // Add summary content
   doc.setFontSize(14);
-  doc.text('Summary:', 20, 60);
+  doc.text('Summary:', 20, 110);
   
   const splitText = doc.splitTextToSize(summary.summary, 170);
-  doc.text(splitText, 20, 70);
+  doc.text(splitText, 20, 120);
   
   // Add keywords
   doc.text('Keywords:', 20, doc.internal.pageSize.height - 40);
   doc.text(summary.keywords.map((k: string) => `#${k}`).join(', '), 20, doc.internal.pageSize.height - 30);
   
+  // Save the PDF with a sanitized title
   doc.save(`${summary.video_title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_summary.pdf`);
 };
 
