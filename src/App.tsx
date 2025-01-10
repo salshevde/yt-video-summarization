@@ -460,7 +460,7 @@ function App() {
                         </div>
 
                         <p className={`mb-6 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                          {summary.summary}
+                        <div dangerouslySetInnerHTML={{ __html: summary.summary}} />
                         </p>
 
                         <div className="flex gap-2 mb-6 flex-wrap">
