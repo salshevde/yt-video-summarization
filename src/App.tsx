@@ -113,11 +113,13 @@ function App() {
           }
           return responseData; // Return the summary from n8n
         } else {
-          toast.error('Failed to send YouTube URL to n8n');
+            toast.error("Network Error! Please Retry")
+          // toast.error('Failed to send YouTube URL to n8n');
         }
       } catch (error) {
         console.error('Error during request:', error);
-        toast.error('Error sending YouTube URL');
+        toast.error("Network Error! Please Retry")
+        // toast.error('Error sending YouTube URL');
       }
     };
 
