@@ -98,7 +98,8 @@ function App() {
           },
           body: JSON.stringify({ youtubeUrl: url , length: lengthPreference, language:language}), // Send the URL as part of the request body
         });
-    
+
+        console.log(response)
         if (response.ok) {
           const responseData = await response.json();
           console.log(responseData[0].summary)
