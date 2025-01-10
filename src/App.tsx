@@ -119,6 +119,7 @@ function App() {
         }
       } catch (error) {
         console.error('Error during request:', error);
+        toast.error(responseData)
         // toast.error("API transactions limit reached")
         // toast.error('Error sending YouTube URL');
       }
