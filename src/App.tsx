@@ -114,12 +114,12 @@ function App() {
           }
           return responseData; // Return the summary from n8n
         } else {
-            toast.error(response.message)
+            toast.error("API limit reached")
           // toast.error('Failed to send YouTube URL to n8n');
         }
       } catch (error) {
         console.error('Error during request:', error);
-        toast.error(responseData)
+                    toast.error("API limit reached")
         // toast.error("API transactions limit reached")
         // toast.error('Error sending YouTube URL');
       }
