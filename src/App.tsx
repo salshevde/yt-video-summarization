@@ -61,7 +61,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json', // Content type for sending JSON
           },
-          body: JSON.stringify({ youtubeUrl: url }), // Send the URL as part of the request body
+          body: JSON.stringify({ youtubeUrl: url , length: lengthPreference, language:language}), // Send the URL as part of the request body
         });
     
         if (response.ok) {
@@ -180,8 +180,14 @@ function App() {
 
       throw new Error('No response received');
     }
+      
+      console.log('here')
       const n8data = n8data_[0]
 
+      if (!n8data.availableLangs.includes(language)) {
+        toast.error("Select language not available")
+      }
+      
 
       const transcript = n8data.transcription;
 
