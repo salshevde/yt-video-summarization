@@ -88,7 +88,7 @@ export function History() {
                 <p className="text-sm text-gray-500">{format(new Date(summary.created_at), 'PPP')}</p>
                 <p className="text-sm text-blue-600 truncate">{summary.video_url}</p>
                 {/* Display summary here */}
-                <p className="text-sm text-gray-700 mt-2">{summary.summary}</p>
+                <div dangerouslySetInnerHTML={{ __html: summary.summary}} />
               </div>
               {summary.rating && (
                 <div className="flex items-center gap-1 text-yellow-500">
