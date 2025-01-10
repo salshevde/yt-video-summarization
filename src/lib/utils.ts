@@ -1,6 +1,18 @@
 import { jsPDF } from 'jspdf';
 
-export const downloadPDF = (summary: any) => {
+// Function to convert an image URL to base64
+const loadImageAsBase64 = async (url: string) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const reader = new FileReader();
+  return new Promise<string>((resolve, reject) => {
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+export const downloadPDF = async (summary: any) => {
   const doc = new jsPDF();
   
   // Add title
@@ -14,7 +26,14 @@ export const downloadPDF = (summary: any) => {
   
   // Add the thumbnail image (if exists)
   if (summary.thumbnail_url) {
-    doc.addImage(summary.thumbnail_url, 'JPEG', 20, 50, 50, 50);  // Adjust size and position
+    try {
+      // Convert the thumbnail image URL to base64
+      const base64Image = await loadImageAsBase64(summary.thumbnail_url);
+      // Add the image to the PDF
+      doc.addImage(base64Image, 'JPEG', 20, 50, 50, 50);  // Adjust size and position
+    } catch (error) {
+      console.error("Error loading thumbnail image:", error);
+    }
   }
   
   // Add summary content
