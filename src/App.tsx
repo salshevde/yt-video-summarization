@@ -405,7 +405,7 @@ function App() {
                               Download PDF
                             </button>
 
-                            <SocialShare summary={summary} isDark={isDark} />
+{/*                             <SocialShare summary={summary} isDark={isDark} /> */}
                           </div>
 
                           <div className="flex items-center gap-2">
