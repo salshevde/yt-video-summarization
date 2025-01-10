@@ -252,7 +252,6 @@ function App() {
           />
 
           <Routes>
-            <Route path="/history" element={<History />} />
             <Route
               path="/"
               element={
@@ -449,6 +448,8 @@ function App() {
                 </>
               }
             />
+            
+            <Route path="/history" element={<History />} />
           </Routes>
         </div>
       </div>
