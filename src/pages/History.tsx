@@ -11,7 +11,8 @@ export function History() {
   const [loading, setLoading] = useState(true);
   // console.log(nhost.auth.getUser())
   useEffect(() => {
-    // console.log(nhost.auth.getUser())
+    console.log(nhost.auth.getUser())
+    console.log(nhost.auth.getSession())
     loadSummaries();
   }, [nhost]);
 
