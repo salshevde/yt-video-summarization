@@ -12,7 +12,7 @@ export function History() {
 
   useEffect(() => {
     loadSummaries();
-  }, []);
+  }, [nhost]);
 
   const loadSummaries = async () => {
     try {
