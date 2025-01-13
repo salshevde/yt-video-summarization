@@ -11,10 +11,27 @@ export function History() {
   const [loading, setLoading] = useState(true);
   // console.log(nhost.auth.getUser())
   useEffect(() => {
-    console.log(nhost.auth.getUser())
-    console.log(nhost.auth.getSession())
-    loadSummaries();
-  }, []);
+    // Listen for authentication state changes
+    const unsubscribe = nhost.auth.onAuthStateChanged((event, session) => {
+      console.log('Auth State Changed:', event);
+      console.log('Session:', session);
+      console.log('User:', nhost.auth.getUser());
+      if (session) {
+        loadSummaries();
+      }
+    });
+
+    // Initial logs and data load if already authenticated
+    console.log('Initial User:', nhost.auth.getUser());
+    console.log('Initial Session:', nhost.auth.getSession());
+    if (nhost.auth.getSession()) {
+      loadSummaries();
+    }
+
+    return () => {
+      unsubscribe(); // Cleanup subscription
+    };
+  }, [nhost]);
 
   const loadSummaries = async () => {
     try {
