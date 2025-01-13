@@ -9,7 +9,7 @@ export function History() {
   const [summaries, setSummaries] = useState<Summary[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-
+  console.log(nhost.auth.getUser())
   useEffect(() => {
     console.log(nhost.auth.getUser())
     loadSummaries();
