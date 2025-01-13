@@ -14,7 +14,7 @@ export function History() {
     console.log(nhost.auth.getUser())
     console.log(nhost.auth.getSession())
     loadSummaries();
-  }, [nhost]);
+  }, []);
 
   const loadSummaries = async () => {
     try {
